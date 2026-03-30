@@ -2,6 +2,29 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+import os
+
+# Download similarity.pkl from Google Drive if not present
+def download_similarity():
+    if not os.path.exists('similarity.pkl'):
+        with st.spinner('Downloading model data...'):
+            file_id = '1Z_4c_WokgHdlcM6mx6e3EQTGZ_7Vm95S'
+            url = f'https://drive.google.com/uc?export=download&id={file_id}'
+            session = requests.Session()
+            response = session.get(url, stream=True)
+            # Handle large file confirmation token
+            token = None
+            for key, value in response.cookies.items():
+                if key.startswith('download_warning'):
+                    token = value
+            if token:
+                response = session.get(url, params={'confirm': token}, stream=True)
+            with open('similarity.pkl', 'wb') as f:
+                for chunk in response.iter_content(chunk_size=32768):
+                    if chunk:
+                        f.write(chunk)
+
+download_similarity()
 
 
 def load_static():
@@ -14,7 +37,7 @@ load_static()
 
 movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
-similarity = pickle.load(open('similarity (1).pkl', 'rb'))
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 def fetch_poster(movie_id):
     url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US'
