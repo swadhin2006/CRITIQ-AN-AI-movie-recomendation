@@ -8,21 +8,11 @@ import os
 def download_similarity():
     if not os.path.exists('similarity.pkl'):
         with st.spinner('Downloading model data...'):
+            import subprocess
+            subprocess.run(['pip', 'install', 'gdown', '-q'])
+            import gdown
             file_id = '1Z_4c_WokgHdlcM6mx6e3EQTGZ_7Vm95S'
-            url = f'https://drive.google.com/uc?export=download&id={file_id}'
-            session = requests.Session()
-            response = session.get(url, stream=True)
-            # Handle large file confirmation token
-            token = None
-            for key, value in response.cookies.items():
-                if key.startswith('download_warning'):
-                    token = value
-            if token:
-                response = session.get(url, params={'confirm': token}, stream=True)
-            with open('similarity.pkl', 'wb') as f:
-                for chunk in response.iter_content(chunk_size=32768):
-                    if chunk:
-                        f.write(chunk)
+            gdown.download(f'https://drive.google.com/uc?id={file_id}', 'similarity.pkl', quiet=False, fuzzy=True)
 
 download_similarity()
 
