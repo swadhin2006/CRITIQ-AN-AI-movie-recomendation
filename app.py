@@ -6,13 +6,15 @@ import os
 
 # Download similarity.pkl from Google Drive if not present
 def download_similarity():
-    if not os.path.exists('similarity.pkl'):
-        with st.spinner('Downloading model data...'):
-            import subprocess
-            subprocess.run(['pip', 'install', 'gdown', '-q'])
+    if not os.path.exists('similarity.pkl') or os.path.getsize('similarity.pkl') < 1000000:
+        # Remove corrupted/incomplete file
+        if os.path.exists('similarity.pkl'):
+            os.remove('similarity.pkl')
+        with st.spinner('Downloading model data... (this may take a minute)'):
             import gdown
             file_id = '1Z_4c_WokgHdlcM6mx6e3EQTGZ_7Vm95S'
-            gdown.download(f'https://drive.google.com/uc?id={file_id}', 'similarity.pkl', quiet=False, fuzzy=True)
+            url = f'https://drive.google.com/uc?id={file_id}'
+            gdown.download(url, 'similarity.pkl', quiet=False, fuzzy=True)
 
 download_similarity()
 
